@@ -15,17 +15,25 @@ POINT_NUMBER = 20
 
 class Action():
 	def __init__(self, filename):
-		self.action_seq = []
+		
+        self.action_seq = []
 		self.point_seq = []
-		self.frame_number = 0
+        
+        self.norm_action_seq = []
+        self.norm_point_seq = []
+		
+        self.frame_number = 0
 		self.point_number = 0
-		self.ROOT_INDEX = 6
+		
+        self.ROOT_INDEX = 6
 		self.ROOT = []
 		self.MEAN = []
-		self.x_bounder = [0.0, 0.0]
-		self.y_bounder = [0.0, 0.0]
-		self.z_bounder = [0.0, 0.0]
-		self.points_bounder = []
+        
+        self.bounder = [[float("inf"),float("-inf")],[float("inf"),float("-inf")],[float("inf"),float("-inf")]]#x,y,z
+        self.norm_bounder = [[float("inf"),float("-inf")],[float("inf"),float("-inf")],[float("inf"),float("-inf")]] #x,y,z
+        self.bounders = []
+        self.norm_bounders = []
+       
 		self.filename = filename
 		temp = self.read_action()
 
@@ -44,48 +52,75 @@ class Action():
 				# print(point_data)
 				self.point_seq[i].append(point_data)
 				if (POINT_NUMBER - 1) == i:
-					# norm
-					for joint in pose:
-						for axi in range(0, 3):
-							joint[axi] -= pose[ROOT][axi]
 					self.action_seq.append(pose)
 					pose = []
 					i = 0
 				else:
 					i += 1
 				pose.append(point_data)
-
-		# norm point_seq
-		for index_of_point in range(0, len(self.point_seq)):
-			for index_of_frame in range(0, len(self.point_seq[index_of_point])):
-				for axi in range(0, 3):
-					self.point_seq[index_of_point][index_of_frame][axi] -= self.point_seq[ROOT][index_of_frame][axi]
+                
 		self.frame_number = len(self.action_seq)
 		self.point_number = len(self.point_seq)
 		return [self.action_seq, self.point_seq]
 
 	def normalization(self):
-		return [self.action_seq, self.point_seq]
+        norm_pose = []
+        norm_joint = [0.0,0.0,0.0]
+        for pose in self.action_seq:
+            for joint in pose:
+                for axi in range(0,3):
+                    norm_joint[axi] = joint[axi] - pose[ROOT][axi]
+                norm_pose.append(norm_joint)
+            self.norm_action_seq.append(norm_pose)
+            norm_pose = []
+       
+        norm_joint = [0.0,0.0,0.0]
+        for i in range(0, len(self.point_seq)):
+            self.norm_point_seq.append([])
+        for i in range(0, len(self.point_seq)):
+            for j in range(0, self.frame_number):
+                for axi in range(0,3):
+                    norm_joint[axi] = self.point_seq[i][j][axi] - self.point_seq[ROOT][j][axi]
+            self.norm_point_seq[i].append(norm_joint)
+		return [self.norm_action_seq, self.norm_point_seq]
 
 	# calculate the x,y,z bounder of data in one action_seq
 	# todo calculate the bounder of each point
 	def calculate_bounder(self):
-		for action in self.action_seq:
-			for point in action:
-				x_value = point[0]
-				y_value = point[1]
-				z_value = point[2]
-				if x_value < self.x_bounder[0]:
-					self.x_bounder[0] = x_value
-				if x_value > self.x_bounder[1]:
-					self.x_bounder[1] = x_value
-				if y_value < self.y_bounder[0]:
-					self.y_bounder[0] = y_value
-				if y_value > self.y_bounder[1]:
-					self.y_bounder[1] = y_value
-				if z_value < self.y_bounder[0]:
-					self.z_bounder[0] = z_value
-				if z_value > self.y_bounder[1]:
-					self.z_bounder[1] = z_value
-
-	# todo calculate
+        
+        for points in self.point_seq:
+            self.boundes.append(calculate_bounder(points))
+        for points in self.norm_point_seq:
+            self.norm_bounders.append(calculate_bounder(points))
+        
+        for i in self.bounders:
+            if i[0][0] < self.bounder[0][0]:
+                self.bounder[0][0] = i[0][0]
+            if i[0][1] > self.bounder[0][1]:
+				self.bounder[0][1] = i[0][1]
+			if i[1][0] < self.bounder[1][0]:
+				self.bounder[1][0] = i[1][0]
+			if i[1][1] > self.bounder[1][1]:
+				self.bounder[1][1] = i[1][1]
+			if i[2][0] < self.bounder[2][0]:
+				self.bounder[2][0] = i[2][0]
+			if i[2][1] > self.bounder[2][1]:
+				self.bounder[2][1] = i[2][1]
+                
+        for i in self.norm_norm_bounders:
+            if i[0][0] < self.norm_bounder[0][0]:
+                self.norm_bounder[0][0] = i[0][0]
+            if i[0][1] > self.norm_bounder[0][1]:
+				self.norm_bounder[0][1] = i[0][1]
+			if i[1][0] < self.norm_bounder[1][0]:
+				self.norm_bounder[1][0] = i[1][0]
+			if i[1][1] > self.norm_bounder[1][1]:
+				self.norm_bounder[1][1] = i[1][1]
+			if i[2][0] < self.norm_bounder[2][0]:
+				self.norm_bounder[2][0] = i[2][0]
+			if i[2][1] > self.norm_bounder[2][1]:
+				self.norm_bounder[2][1] = i[2][1]
+        
+        return [self.bounder, self.norm_bounder]
+            
+                

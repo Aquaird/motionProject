@@ -43,5 +43,23 @@ def savitzky_filter(sequence):
 		sequence[i] = temp_seq[i]
 	return sequence
 
-
-
+def calculate_bounder(sequence):
+    bounder = [[float("inf"),float("-inf")],[float("inf"),float("-inf")],[float("inf"),float("-inf")]]
+    count = len(sequence)
+    for i in sequence:
+		x_value = i[0]
+		y_value = i[1]
+		z_value = i[2]
+        if x_value < bounder[0][0]:
+			bounder[0][0] = x_value
+			if x_value > bounder[0][1]:
+				bounder[0][1] = x_value
+			if y_value < bounder[1][0]:
+				bounder[1][0] = y_value
+			if y_value > bounder[1][1]:
+				bounder[1][1] = y_value
+			if z_value < bounder[2][0]:
+				bounder[2][0] = z_value
+			if z_value > bounder[2][1]:
+				bounder[2][1] = z_value
+    return bounder

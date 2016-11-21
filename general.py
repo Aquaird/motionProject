@@ -1,6 +1,7 @@
 import os
-import numpy
+import numpy as np
 import csv
+from sklearn.decomposition import PCA
 
 # calculate the var in one seq with window_size
 def calculate_var(point_seq, window_size):
@@ -62,3 +63,12 @@ def calculate_bounder(sequence):
         if z_value > bounder[2][1]:
             bounder[2][1] = z_value
     return bounder
+
+def PCA_vector(data):
+    pca = PCA(n_components=3)
+    data_t = pca.fit_transform(data)
+    return pca.components_
+
+
+
+

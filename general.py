@@ -43,9 +43,9 @@ def savitzky_filter(sequence):
         sequence[i] = temp_seq[i]
     return sequence
 
+# calculate bounder of a sequence of (x,y,z)
 def calculate_bounder(sequence):
     bounder = [[float("inf"),float("-inf")],[float("inf"),float("-inf")],[float("inf"),float("-inf")]]
-    count = len(sequence)
     for i in sequence:
         x_value = i[0]
         y_value = i[1]
@@ -64,11 +64,37 @@ def calculate_bounder(sequence):
             bounder[2][1] = z_value
     return bounder
 
+# get pca components of data sequence
 def PCA_vector(data):
     pca = PCA(n_components=3)
     data_t = pca.fit_transform(data)
     return pca.components_
 
+# calculate fuzzy(a) of the given a and its bounder(min, max)
+def fuzzy(a, min_bounder, max_bounder):
+    q = [0.0,0.0,0.0,0.0,0.0]
+    q[0] = min_bounder
+    q[2] = 1.0 * (min_bounder + max_bounder) / 2.0
+    q[1] = 1.0 * (min_bounder + mid_bounder) / 2.0
+    q[3] = 1.0 * (mid_bounder + max_bounder) / 2.0
+    q[4] = max_bounder
+    fuzzy_value = [0.0, 0.0, 0.0, 0.0]
+    if(a < q[1]):
+        fuzzy_value[0] = maxmin_linear(a, q[0], q[1])
+    elif (a < q[2]):
+        fuzzy_value[0] = 1
+        fuzzy_value[1] = maxmin_linear(a, q[1], q[2])
+    elif (a < q[3]):
+        fuzzy_value[0] = 1
+        fuzzy_value[1] = 1
+        fuzzy_value[2] = maxmin_linear(a, q[2], q[3])
+    else:
+        fuzzy_value[0] = fuzzy_value[1] = fuzzy_value[2] = 1
+        fuzzy_value[3] = maxmin_linear(a, q[3], q[4])
+
+    print(fuzzy_value)
+    return fuzzy_value
 
 
-
+def maxmin_linear(x, min_bounder, max_bounder):
+    return 1.* (x-min_bounder) / (max_bounder - min_bounder)

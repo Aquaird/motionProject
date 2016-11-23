@@ -28,18 +28,21 @@ class Action():
 
         self.ROOT_INDEX = 6
         self.MEAN = []
+        self.maxmin_MEAN = []
         self.pca_vector = []
 
         self.bounder = [[float("inf"),float("-inf")],[float("inf"),float("-inf")],[float("inf"),float("-inf")]]#x,y,z
         self.norm_bounder = [[float("inf"),float("-inf")],[float("inf"),float("-inf")],[float("inf"),float("-inf")]] #x,y,z
         self.bounders = []
         self.norm_bounders = []
+        self.norm_fuzzy_feature = []
 
         self.filename = filename
         self.read_action()
         self.normalization()
         self.calculate_bounders()
         self.maxminnorm()
+        self.calculate_pca()
 
     def read_action(self):
         for i in range(0, POINT_NUMBER):
@@ -65,8 +68,6 @@ class Action():
                     mean_point=[mean_x, mean_y, mean_z]
                     self.MEAN.append(mean_point)
 
-                    #calculate PCA
-                    self.pca_vector.append(PCA_vector(a_pose))
                     self.action_seq.append(pose)
                     pose = []
                     i = 0
@@ -102,8 +103,22 @@ class Action():
                 for axi in range(0,3):
                     maxmin_joint[axi] = (self.norm_point_seq[i][j][axi] - self.norm_bounder[axi][0]) / maxmin[axi]
             self.maxmin_point_seq[i].append(maxmin_joint)
+
+        for i in self.MEAN:
+            point = [0.0,0.0,0.0]
+            for axi in range(0,3):
+                point[axi] = (0 - self.norm_bounder[axi][0]) / maxmin[axi]
+            self.maxmin_MEAN.append(point)
+
         return [self.maxmin_action_seq, self.maxmin_point_seq]
 
+    def calculate_pca(self):
+        #calculate PCA
+        for pose in self.norm_action_seq:
+            a_pose = np.array(pose)
+            self.pca_vector.append(PCA_vector(a_pose))
+
+        return self.pca_vector
 
 
     def normalization(self):
@@ -163,5 +178,6 @@ class Action():
             if i[2][1] > self.norm_bounder[2][1]:
                 self.norm_bounder[2][1] = i[2][1]
         return [self.bounder, self.norm_bounder]
-    
-a = Action("msra3d/a01_s01_e01_skeleton3D.txt")
+
+    def calculate_fuzzy_feature(self):
+        for (i,point_seq) in en self.norm_point_seq:

@@ -9,7 +9,7 @@ import matplotlib.animation as animation
 
 from Action import *
 
-FILENAME = "msra3d/a20_s03_e02_skeleton3D.txt"
+FILENAME = "msra3d/a01_s01_e01_skeleton3D.txt"
 
 class Visualize():
     def __init__(self, FILENAME):
@@ -39,8 +39,7 @@ class Visualize():
         data = np.array(self.action.maxmin_action_seq[i])
         scatters = self.ax.scatter(data[:,0],data[:,2],data[:,1])
         vectors = np.array(self.action.pca_vector[i])
-        origin = np.array(self.action.MEAN[i])
-        print(vectors)
+        origin = np.array(self.action.maxmin_MEAN[i])
         quivers = self.ax.quiver([origin[0],origin[0],origin[0]], [origin[2],origin[2],origin[2]], [origin[1], origin[1], origin[1]], vectors[:,0], vectors[:,2], vectors[:,1], colors=['r','g','b'], pivot='tail', arrow_length_ratio=0.1)
         #quivers = self.ax.quiver([0,0,0],[0,0,0],[0,0,0],[1,0,0],[0,1,0],[0,0,1])
         #self.scatters.set_3d_properties(data[:,2])

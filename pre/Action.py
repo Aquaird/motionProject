@@ -1,10 +1,7 @@
-import os
 import numpy as np
-import csv
 from general import *
 
 ROOT = 6
-POINT_NUMBER = 20
 
 
 # read data to form a action seq
@@ -14,7 +11,7 @@ POINT_NUMBER = 20
 # each point_value is norm by its root
 
 class Action():
-    def __init__(self, filename):
+    def __init__(self, filename, POINT_NUMBER):
         self.action_seq = []
         self.point_seq = []
 
@@ -38,14 +35,16 @@ class Action():
         self.norm_fuzzy_feature = []
 
         self.filename = filename
+        self.point_number = POINT_NUMBER
         self.read_action()
         self.normalization()
         self.calculate_bounders()
         self.maxminnorm()
         self.calculate_pca()
+        self.calculate_fuzzy_feature()
 
     def read_action(self):
-        for i in range(0, POINT_NUMBER):
+        for i in range(0, self.point_number):
             self.point_seq.append([])
         # print(point_seq)
         with open(self.filename, 'r') as f:
@@ -58,7 +57,7 @@ class Action():
                 point_data = [float(_row[0]), float(_row[1]), float(_row[2])]
                 # print(point_data)
                 self.point_seq[i].append(point_data)
-                if (POINT_NUMBER - 1) == i:
+                if (self.point_number - 1) == i:
 
                     #calculate mean
                     a_pose = np.array(pose)
@@ -76,7 +75,7 @@ class Action():
                 pose.append(point_data)
 
         self.frame_number = len(self.action_seq)
-        self.point_number = len(self.point_seq)
+        #self.point_number = len(self.point_seq)
         return [self.action_seq, self.point_seq]
 
     def maxminnorm(self):
@@ -180,4 +179,14 @@ class Action():
         return [self.bounder, self.norm_bounder]
 
     def calculate_fuzzy_feature(self):
-        for (i,point_seq) in en self.norm_point_seq:
+        for (i, point_seq) in enumerate(self.norm_point_seq):
+            self.norm_fuzzy_feature.append([])
+            for point in point_seq:
+                feature = []
+                for axi in range(0,3):
+                    feature.append(fuzzy(point[axi], self.norm_bounder[axi][0], self.norm_bounder[axi][1]))
+                feature = np.array(feature).flatten()
+                self.norm_fuzzy_feature[i].append(feature)
+        self.norm_fuzzy_feature = np.array(self.norm_fuzzy_feature)
+        print(self.norm_fuzzy_feature.shape)
+        return self.norm_fuzzy_feature

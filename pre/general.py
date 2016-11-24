@@ -74,10 +74,11 @@ def PCA_vector(data):
 def fuzzy(a, min_bounder, max_bounder):
     q = [0.0,0.0,0.0,0.0,0.0]
     q[0] = min_bounder
-    q[2] = 1.0 * (min_bounder + max_bounder) / 2.0
-    q[1] = 1.0 * (min_bounder + mid_bounder) / 2.0
-    q[3] = 1.0 * (mid_bounder + max_bounder) / 2.0
     q[4] = max_bounder
+    q[2] = 1.0 * (q[0] + q[4]) / 2.0
+    q[1] = 1.0 * (q[0] + q[2]) / 2.0
+    q[3] = 1.0 * (q[2] + q[4]) / 2.0
+
     fuzzy_value = [0.0, 0.0, 0.0, 0.0]
     if(a < q[1]):
         fuzzy_value[0] = maxmin_linear(a, q[0], q[1])
@@ -92,7 +93,6 @@ def fuzzy(a, min_bounder, max_bounder):
         fuzzy_value[0] = fuzzy_value[1] = fuzzy_value[2] = 1
         fuzzy_value[3] = maxmin_linear(a, q[3], q[4])
 
-    print(fuzzy_value)
     return fuzzy_value
 
 

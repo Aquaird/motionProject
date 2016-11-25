@@ -179,6 +179,7 @@ class Action():
         return [self.bounder, self.norm_bounder]
 
     def calculate_fuzzy_feature(self):
+        self.norm_fuzzy_feature = []
         for (i, point_seq) in enumerate(self.norm_point_seq):
             self.norm_fuzzy_feature.append([])
             for point in point_seq:
@@ -188,5 +189,4 @@ class Action():
                 feature = np.array(feature).flatten()
                 self.norm_fuzzy_feature[i].append(feature)
         self.norm_fuzzy_feature = np.array(self.norm_fuzzy_feature)
-        print(self.norm_fuzzy_feature.shape)
         return self.norm_fuzzy_feature

@@ -72,7 +72,9 @@ class RBM:
             self.compute_err = tf.reduce_mean(tf.square(self.x - self.compute_visible))
 
         init = tf.initialize_all_variables()
-        self.sess = tf.Session()
+        config = tf.ConfigProto()
+        config.gpu_options.allow_growth = True
+        self.sess = tf.Session(config=config)
         self.sess.run(init)
 
     def _initialize_vars(self):

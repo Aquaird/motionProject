@@ -1,36 +1,51 @@
 from Action import *
 
 import os
+from joblib import Parallel, delayed
 
 # generalize fuzzy feature for msra3d-like data file
 # which means given the number of points in one frame, and the data of each points is separated in one line
 
-def makeFeature(PATH, size_feature):
-    list_dirs = os.walk(PATH)
-    for root, dir, files in list_dirs:
-        for f in files:
-            action = Action(os.path.join(PATH, f), 20)
-            features = action.calculate_fuzzy_feature()
-            downsampling_features = []
-            for point_features in features:
-                n_of_frame = point_features.shape[0]
-                epoch_size = n_of_frame // size_feature
-                downsampling_result = []
-                for (i, feature) in enumerate(point_features):
-                    if i%epoch_size == 0 and (i//epoch_size)<size_feature:
-                        downsampling_result.append(feature)
-                downsampling_result = np.array(downsampling_result)
-                downsampling_features.append(downsampling_result)
-            downsampling_features = np.array(downsampling_features)
-            #print(downsampling_features.shape)
-            FEATURE_FILE_ROOT='fuzzy_features_down_sampling'
-            with open(os.path.join(FEATURE_FILE_ROOT,f.split('.')[0]+'.fz'), 'w+') as wf:
-                for i in downsampling_features:
-                    print(i.flatten().shape)
-                    for j in i.flatten():
-                        print(j)
-                        wf.write(str(j)+',')
-                    wf.write('\n')
-            wf.close()
+def makeFeature(PATH, out_path, point_number,size_feature,fz=True):
+    action = Action(PATH, point_number)
+    if fz:
+        features = action.calculate_fuzzy_feature()
+    else:
+        features = np.array(action.norm_point_seq)
+    downsampling_features = []
+    fileName = PATH.split('.')[-2].split('/')[-1]
+    # in every point seq:
+    for point_features in features:
+        n_of_frame = point_features.shape[0]
+        epoch_size = n_of_frame // size_feature
+        downsampling_result = []
+        #in every frame of a point seq:
+        for (i, feature) in enumerate(point_features):
+            #if this frame is needed to be sampled
+            if i%epoch_size == 0 and (i//epoch_size)<size_feature:
+                downsampling_result.append(feature)
+            #downsampling_result = np.array(downsampling_result)
+        downsampling_features.append(np.array(downsampling_result))
 
-makeFeature("../data/msra3d/", 10)
+    a_downsampling_features = np.array(downsampling_features)
+    #print(a_downsampling_features.shape)
+    #print(os.path.join(out_path,PATH.split('.')[0]+'.fz'))
+    if fz:
+        app = '.fz'
+    else:
+        app = '.ft'
+    with open(os.path.join(out_path,fileName+app), 'w+') as wf:
+        for i in a_downsampling_features:
+            print(i.flatten().shape)
+            for j in i.flatten():
+                wf.write(str(j)+',')
+            wf.write('\n')
+    wf.close()
+
+if __name__ == '__main__':
+    rawdata_root = '../data/msra3d'
+    feature_root = './fuzzy_features_down_sampling/msra3d'
+    point_number = 20
+    size_feature = 10
+    for root,dirs,files in os.walk(rawdata_root):
+        Parallel(n_jobs=12)(delayed(makeFeature)(os.path.join(rawdata_root, fileName), feature_root, point_number,size_feature,fz=True) for fileName in sorted(files))

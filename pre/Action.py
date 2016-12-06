@@ -54,6 +54,7 @@ class Action():
             for __row in reader:
                 # print(__row)
                 _row = __row.split(" ")
+                #print(_row)
                 point_data = [float(_row[0]), float(_row[1]), float(_row[2])]
                 # print(point_data)
                 self.point_seq[i].append(point_data)

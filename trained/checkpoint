@@ -1,0 +1,2 @@
+model_checkpoint_path: "fuzzy_10ds_ntu.ckpt"
+all_model_checkpoint_paths: "fuzzy_10ds_ntu.ckpt"

@@ -31,17 +31,23 @@ def get_data(PATH):
     print(features.shape)
     return features
 
-gbrbm = GBRBM(n_visible=120, n_hidden=12, learning_rate=0.01,momentum =0.95,tqdm=None)
-features = get_data("./data/fuzzy/10ds/ntu")
-errs = gbrbm.fit(features, n_epoches=1000, batch_size = features.shape[0])
+def train_model(baseName, dataSize, hiddenSize, rate, mom, ne):
+    gbrbm = GBRBM(n_visible=dataSize, n_hidden=hiddenSize, learning_rate=rate,momentum =mom,tqdm=None)
+    features = get_data(os.path.join("./data", baseName))
+    errs = gbrbm.fit(features, n_epoches=ne, batch_size = features.shape[0])
+    path_list = baseName.split('/')
+    save_path = os.path.join("./trained", path_list[0]+'_'+path_list[1]+'_'+path_list[2])
+    saver = tf.train.Saver()
+    s = saver.save(gbrbm.sess, save_path+".ckpt")
+    print("Model saved in file: %s" %s)
+    return gbrbm
 #cluster_result = gbrbm.transform(features)
 
-n_of_point = 25
-
+'''
 def data_iterator():
     generator = []
     return generator
-
+'''
 
 def find_cluster(hidden_value, true_bounder):
     cluster = 0
@@ -50,11 +56,23 @@ def find_cluster(hidden_value, true_bounder):
             cluster += np.power(2,i)
     return cluster
 
-msra_features = get_data('./data/fuzzy/10ds/ntu')
-cluster_result = gbrbm.transform(msra_features)
+def test_cluster(test_data, point_number, gbrbm):
+    data = get_data(test_data)
+    cluster_result = gbrbm.transform(data)
+    for (i,j) in enumerate(cluster_result):
+        if i%n_of_point == 0:
+            print('-------------------------------------------------------')
+        print(i%n_of_point+1, "->",find_cluster(j, 0.7))
 
-for (i,j) in enumerate(cluster_result):
-    if i%n_of_point == 0:
-        print('-------------------------------------------------------')
-    print(i%n_of_point+1, "->",find_cluster(j, 0.7))
 
+baseName = "fuzzy/10ds/ntu"
+dataSize = 120
+hiddenSize = 8
+rate = 0.001
+mom = 0.95
+ne = 1000
+m = train_model(baseName, dataSize, hiddenSize, rate, mom, ne)
+
+n_of_point = 20
+test_path = './data/fuzzy/10ds/msra3d'
+test_cluster(test_path, n_of_point, m)

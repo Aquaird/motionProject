@@ -18,6 +18,8 @@ def makeFeature(PATH, out_path, point_number,size_feature,fz=True):
     for point_features in features:
         n_of_frame = point_features.shape[0]
         epoch_size = n_of_frame // size_feature
+        if(0 == epoch_size):
+            continue
         downsampling_result = []
         #in every frame of a point seq:
         for (i, feature) in enumerate(point_features):
@@ -43,9 +45,9 @@ def makeFeature(PATH, out_path, point_number,size_feature,fz=True):
     wf.close()
 
 if __name__ == '__main__':
-    rawdata_root = '../data/msra3d'
-    feature_root = './fuzzy_features_down_sampling/msra3d'
-    point_number = 20
+    rawdata_root = '../data/ntu_all'
+    feature_root = '../data/fuzzy/10ds/ntu_all'
+    point_number = 25
     size_feature = 10
     for root,dirs,files in os.walk(rawdata_root):
         Parallel(n_jobs=12)(delayed(makeFeature)(os.path.join(rawdata_root, fileName), feature_root, point_number,size_feature,fz=True) for fileName in sorted(files))

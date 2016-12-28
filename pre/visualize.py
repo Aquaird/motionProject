@@ -9,14 +9,14 @@ import matplotlib.animation as animation
 
 from Action import *
 
-FILENAME = "../data/msra3d/a01_s01_e01_skeleton3D.txt"
+FILENAME = "../data/rawdata/ntu/000001.fz"
 
 class Visualize():
     def __init__(self, FILENAME):
         """
         create the visualization of a normed-pose of one frame
         """
-        self.action = Action(FILENAME, 20)
+        self.action = Action(FILENAME,25)
         self.fig = plt.figure()
         self.ax = p3.Axes3D(self.fig)
 
@@ -79,6 +79,8 @@ class Visualize():
     def draw_maxmin(self):
         ani = animation.FuncAnimation(self.fig, self.update_maxmin_pose, np.arange(0, self.action.frame_number), interval=25)
         plt.show()
+
+    #def draw_cluster(self):
 
 v = Visualize(FILENAME)
 v.draw_maxmin()

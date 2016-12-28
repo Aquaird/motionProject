@@ -102,7 +102,7 @@ class Action():
                 maxmin_joint = [0.0,0.0,0.0]
                 for axi in range(0,3):
                     maxmin_joint[axi] = (self.norm_point_seq[i][j][axi] - self.norm_bounder[axi][0]) / maxmin[axi]
-            self.maxmin_point_seq[i].append(maxmin_joint)
+                self.maxmin_point_seq[i].append(maxmin_joint)
 
         for i in self.MEAN:
             point = [0.0,0.0,0.0]

@@ -57,8 +57,9 @@ def read_skeleton_file(file_path):
         return None, None, None, frame_count, None
 
 
-def writeIntoFile(input_name, output_root, input_root):
+def writeIntoFile(input_name, data_root, input_root):
     basename = input_name.split('.')[0]
+    print(basename)
     f = open(os.path.join(data_root, basename+'.skeleton'), 'w')
     file_path = os.path.join(input_root, input_name)
     pos, start, end, frame_count, body_id = read_skeleton_file(file_path)
@@ -78,8 +79,9 @@ def writeIntoFile(input_name, output_root, input_root):
 
 if __name__ == '__main__':
 
-    skeleton_root = '/home/lym/motionData/AllSkeletonFiles_remove_nan_nolabel'
-    data_root = '../data/ntu'
-
+    skeleton_root = '/home/lym/motionData/nturgb+d_skeletons'
+    data_root = '../data/ntu_all'
+    print(data_root)
     for root, dirs, files in os.walk(skeleton_root):
+        print(files)
         Parallel(n_jobs=24)(delayed(writeIntoFile)(fileName, data_root, skeleton_root) for fileName in sorted(files))

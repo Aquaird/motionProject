@@ -31,15 +31,11 @@ def get_data(PATH):
     print(features.shape)
     return features
 
-def train_model(baseName, dataSize, hiddenSize, rate, mom, ne):
-    gbrbm = GBRBM(n_visible=dataSize, n_hidden=hiddenSize, learning_rate=rate,momentum =mom,tqdm=None)
-    features = get_data(os.path.join("./data", baseName))
-    errs = gbrbm.fit(features, n_epoches=ne, batch_size = features.shape[0])
-    path_list = baseName.split('/')
-    save_path = os.path.join("./trained", path_list[0]+'_'+path_list[1]+'_'+path_list[2])
-    saver = tf.train.Saver()
-    s = saver.save(gbrbm.sess, save_path+".ckpt")
-    print("Model saved in file: %s" %s)
+def train_model(model, inputData, savePath, dataSize, hiddenSize, rate, mom, ne):
+        #saver = tf.train.Saver()
+    #s = saver.save(gbrbm.sess, save_path+".ckpt")
+    gbrbm.save_weights(save_path+".ckpt", path_list[0]+'_'+path_list[1]+'_'+path_list[2])
+    print("Model saved in file: %s", save_path)
     return gbrbm
 #cluster_result = gbrbm.transform(features)
 
@@ -65,14 +61,26 @@ def test_cluster(test_data, point_number, gbrbm):
         print(i%n_of_point+1, "->",find_cluster(j, 0.7))
 
 
-baseName = "fuzzy/10ds/ntu"
-dataSize = 120
-hiddenSize = 8
-rate = 0.001
+dataSize = 240
+hiddenSize = 30
+rate = 0.0001
 mom = 0.95
 ne = 1000
-m = train_model(baseName, dataSize, hiddenSize, rate, mom, ne)
 
-n_of_point = 20
-test_path = './data/fuzzy/10ds/msra3d'
-test_cluster(test_path, n_of_point, m)
+gbrbm = GBRBM(n_visible=dataSize, n_hidden=hiddenSize, learning_rate=rate,momentum =mom,tqdm=None)
+
+#
+#baseName = "fuzzy/10ds/msra3d"
+#features = get_data(os.path.join("./data", baseName))
+#errs = gbrbm.fit(features, n_epoches=ne, batch_size = features.shape[0])
+
+baseName = "fuzzy/10ds/ntu_all"
+features = get_data(os.path.join("./data", baseName))
+errs = gbrbm.fit(features, n_epoches=ne, batch_size = round(features.shape[0]/100))
+
+path_list = baseName.split('/')
+save_path = os.path.join("./trained", path_list[0]+'_'+path_list[1]+'_'+path_list[2])
+
+n_of_point = 25
+test_path = './data/fuzzy/10ds/ntu'
+test_cluster(test_path, n_of_point, gbrbm)
